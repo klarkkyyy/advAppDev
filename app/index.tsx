@@ -10,7 +10,7 @@ export default function Index() {
         contentFit="cover"
         transition={1000}
       />
-      <View style={{ height: 20 }} />  {/* Spacer instead of <br> */}
+      <View style={{ height: 20 }} />  {/* Spacer  */}
       <Text>Cat</Text>
       <View style={{ height: 20 }} />  {/* Spacer */}
       <Button
@@ -44,7 +44,7 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,               // use flexGrow for ScrollView content container
+    flexGrow: 1,               
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
@@ -52,10 +52,10 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '80%',
-    height: 200,              // Use fixed height or number, not percent for images
+    height: 200,              
   },
   image2: {
     width: '80%',
-    height: 1000,              // Use fixed height or number, not percent for images
+    height: 1000,             
   },
 });
