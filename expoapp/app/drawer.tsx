@@ -28,7 +28,7 @@ export default function DrawerContent() {
         onPress={() => router.push('/profile')}
       >
         <Image
-          source={require("C:/Users/karlm/Documents/USC/3rdYr/AdvAppDev/advAppDev/expoapp/assets/images/catpfp.png")}
+          source={require("../assets/images/catpfp.png")}
           style={styles.profileImage}
         />
         <View style={styles.nameContainer}>
@@ -43,7 +43,7 @@ export default function DrawerContent() {
       {/* Settings */}
       <TouchableOpacity 
         style={styles.menuItem} 
-        onPress={() => navigation.navigate('Settings')}
+        onPress={() => router.push('/playlists')}
       >
         <Text style={styles.menuText}>Settings</Text>
       </TouchableOpacity>
@@ -51,7 +51,7 @@ export default function DrawerContent() {
       {/* My Playlists */}
       <TouchableOpacity 
         style={styles.menuItem} 
-        onPress={() => navigation.navigate('Playlists')}
+        onPress={() => router.push('/playlists')}
       >
         <Text style={styles.menuText}>My Playlists</Text>
       </TouchableOpacity>

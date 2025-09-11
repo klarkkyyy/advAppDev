@@ -41,7 +41,7 @@ export default function Login() {
       {/* Logo + Title */}
       <View style={styles.row}>
         <Image
-          source={require("C:/Users/karlm/Documents/USC/3rdYr/AdvAppDev/advAppDev/expoapp/assets/images/spotifyLogo.png")}
+          source={require("../assets/images/spotifyLogo.png")}
           style={[styles.logo, { width: width * 0.2, height: width * 0.2 }]}
           resizeMode="contain"
         />

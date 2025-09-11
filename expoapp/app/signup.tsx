@@ -40,7 +40,7 @@ export default function Signup() {
       {/* Logo + Title */}
       <View style={styles.row}>
         <Image
-          source={require("C:/Users/karlm/Documents/USC/3rdYr/AdvAppDev/advAppDev/expoapp/assets/images/spotifyLogo.png")}
+          source={require("../assets/images/spotifyLogo.png")}
           style={[styles.logo, { width: width * 0.2, height: width * 0.2 }]}
           resizeMode="contain"
         />
@@ -107,7 +107,7 @@ export default function Signup() {
                 ]}
                 onPress={handleSignup}
                 >
-                <Text style={styles.signUpButtonText}>Sign In</Text>
+                <Text style={styles.signUpButtonText}>Sign Up</Text>
                 </Pressable>
       </View>
     </View>
