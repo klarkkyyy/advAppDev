@@ -5,7 +5,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context"; 
-import { GestureHandlerRootView } from "react-native-gesture-handler"; // ✅ gesture handler
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useEffect } from "react";
+import * as NavigationBar from "expo-navigation-bar"; 
+import { StatusBar } from "expo-status-bar";
 
 function CustomDrawerContent(props: any) {
   const router = useRouter();
@@ -14,7 +17,10 @@ function CustomDrawerContent(props: any) {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#121212" }}>
       <DrawerContentScrollView
         {...props}
-        contentContainerStyle={{ backgroundColor: "#121212" }}
+        contentContainerStyle={{
+          backgroundColor: "#121212",
+          paddingTop: 0, // ✅ reduced top spacing
+        }}
       >
         {/* Profile Section */}
         <TouchableOpacity
@@ -32,7 +38,7 @@ function CustomDrawerContent(props: any) {
           </View>
         </TouchableOpacity>
 
-        {/* Default Drawer Items */}
+        {/* Drawer Items */}
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
     </SafeAreaView>
@@ -40,13 +46,29 @@ function CustomDrawerContent(props: any) {
 }
 
 export default function Layout() {
+  useEffect(() => {
+    async function setupNavBar() {
+      try {
+        await NavigationBar.setPositionAsync("absolute");
+        await NavigationBar.setBackgroundColorAsync("#00000000");
+        await NavigationBar.setButtonStyleAsync("light");
+        await NavigationBar.setVisibilityAsync("visible");
+      } catch (e) {
+        console.log("NavigationBar error:", e);
+      }
+    }
+    setupNavBar();
+  }, []);
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#121212" }}>
+      <StatusBar style="light" backgroundColor="#121212" translucent={false} />
+
       <Drawer
         drawerContent={(props) => <CustomDrawerContent {...props} />}
-        defaultStatus="closed" // drawer starts closed
-        swipeEnabled={true}    // enables swipe gestures
-        edgeWidth={50}         // how far from the edge swipe is detected
+        defaultStatus="closed"
+        swipeEnabled
+        edgeWidth={50}
         drawerStyle={{ backgroundColor: "#121212", width: 260 }}
         screenOptions={{
           headerStyle: { backgroundColor: "#121212" },
@@ -56,6 +78,7 @@ export default function Layout() {
           drawerActiveTintColor: "#1DB954",
           drawerInactiveTintColor: "#b3b3b3",
           drawerLabelStyle: { fontSize: 15, marginLeft: -10 },
+          headerStatusBarHeight: 0,
         }}
       >
         <Drawer.Screen
@@ -103,7 +126,6 @@ const styles = StyleSheet.create({
   profileContainer: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
     backgroundColor: "#121212",
     borderBottomWidth: 1,
     borderBottomColor: "#282828",

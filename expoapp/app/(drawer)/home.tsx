@@ -1,6 +1,5 @@
 // app/home.tsx
 import { Text, StyleSheet, View, Image, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import MasonryList from "react-native-masonry-list";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,28 +20,23 @@ export default function Home() {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>🐾 Catboard 🐾</Text>
-      </View>
-
-      {/* Masonry grid fills all available space */}
-      <View style={styles.gridWrapper}>
-        <MasonryList
-          images={images}
-          columns={2}
-          spacing={6}
-          imageContainerStyle={{
-            borderRadius: 12,
-            backgroundColor: "#121212",
-          }}
-          listContainerStyle={{
-            paddingHorizontal: 8,
-            backgroundColor: "#121212",
-          }}
-        />
-      </View>
+    <View style={styles.container}>
+      {/* Masonry grid */}
+      <MasonryList
+        images={images}
+        columns={2}
+        spacing={6}
+        imageContainerStyle={{
+          borderRadius: 17,
+          backgroundColor: "#121212",
+        }}
+        listContainerStyle={{
+          paddingHorizontal: 8,
+          backgroundColor: "#121212",
+          paddingBottom: 70, // ✅ prevent images from being hidden under nav
+        }}
+        backgroundColor="#121212"
+      />
 
       {/* Fixed bottom nav */}
       <View style={styles.bottomNav}>
@@ -67,7 +61,7 @@ export default function Home() {
           <Text style={[styles.navText, { color: "red" }]}>Leave</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -76,27 +70,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#121212",
   },
-  headerContainer: {
-    paddingVertical: 6,
-    alignItems: "center",
-    backgroundColor: "#121212",
-  },
-  header: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-  },
-  gridWrapper: {
-    flex: 1, // ✅ ensures grid uses all remaining space
-  },
   bottomNav: {
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    height: 60, // ✅ fixed height (smaller)
+    height: 60,
     borderTopWidth: 1,
     borderTopColor: "#333",
     backgroundColor: "#181818",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   navItem: {
     alignItems: "center",

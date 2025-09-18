@@ -79,7 +79,7 @@ export default function Signup() {
       <View style={styles.form}>
         <TextInput
           style={[styles.input, { width: width * 0.8 }]}
-          placeholder="Email Addres"
+          placeholder="Email Address"
           placeholderTextColor="#aaa"
           value={username}
           onChangeText={setUsername}
