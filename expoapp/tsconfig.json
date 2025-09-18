@@ -1,6 +1,7 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "types": ["node", "estree", "json-schema"],
     "strict": true,
     "paths": {
       "@/*": [
