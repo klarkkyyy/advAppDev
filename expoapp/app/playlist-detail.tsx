@@ -102,7 +102,6 @@ export default function PlaylistDetailScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-
       
       {/* Back Button */}
       <Pressable
