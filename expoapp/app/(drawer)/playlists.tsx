@@ -1,12 +1,13 @@
 // app/(drawer)/playlists.tsx
+import { useRouter } from "expo-router";
 import React from "react";
 import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
   FlatList,
+  Image,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity
 } from "react-native";
 
 const playlists = [
@@ -25,6 +26,8 @@ const playlists = [
 ];
 
 export default function PlaylistsScreen() {
+  const router = useRouter();
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -37,7 +40,20 @@ export default function PlaylistsScreen() {
         numColumns={2}
         columnWrapperStyle={{ justifyContent: "space-between" }}
         renderItem={({ item }) => (
-          <View style={styles.playlistCard}>
+          <TouchableOpacity
+            style={styles.playlistCard}
+            activeOpacity={0.7}
+            onPress={() => {
+              router.push({
+                pathname: "/playlist-detail",
+                params: {
+                  id: item.id,
+                  name: item.name,
+                  imageUri: typeof item.image === "string" ? item.image : undefined
+                }
+              });
+            }}
+          >
             <Image
               source={
                 typeof item.image === "string" ? { uri: item.image } : item.image
@@ -45,7 +61,7 @@ export default function PlaylistsScreen() {
               style={styles.playlistImage}
             />
             <Text style={styles.playlistName}>{item.name}</Text>
-          </View>
+          </TouchableOpacity>
         )}
         contentContainerStyle={{ paddingBottom: 30 }}
       />
@@ -69,6 +85,8 @@ const styles = StyleSheet.create({
   playlistCard: {
     width: "48%",
     marginBottom: 15,
+    opacity: 1,
+    transform: [{scale: 1}],
   },
   playlistImage: {
     width: "100%",

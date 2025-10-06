@@ -1,14 +1,14 @@
 // app/(drawer)/_layout.tsx
-import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
-import { Drawer } from "expo-router/drawer";
 import { Ionicons } from "@expo/vector-icons";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
+import * as NavigationBar from "expo-navigation-bar";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context"; 
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useEffect } from "react";
-import * as NavigationBar from "expo-navigation-bar"; 
+import { Drawer } from "expo-router/drawer";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function CustomDrawerContent(props: any) {
   const router = useRouter();

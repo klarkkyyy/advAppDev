@@ -1,0 +1,381 @@
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useRef, useState } from 'react';
+import {
+    Animated,
+    Image,
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
+} from 'react-native';
+import { playlistSongs } from '../data/playlists';
+import SpotifyService from '../services/spotify';
+
+interface Song {
+  title: string;
+  artist: string;
+}
+
+export default function PlaylistDetailScreen() {
+  const { id, name, imageUri } = useLocalSearchParams();
+  const { width } = useWindowDimensions();
+  const router = useRouter();
+
+  // Animation values
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [selectedSong, setSelectedSong] = useState<Song | null>(null);
+  const [currentSongIndex, setCurrentSongIndex] = useState(-1);
+  const [showOptions, setShowOptions] = useState(false);
+  const songs = playlistSongs[id as keyof typeof playlistSongs] || [];
+
+  // Header animation
+  const headerScale = scrollY.interpolate({
+    inputRange: [0, 200],
+    outputRange: [1, 0.8],
+    extrapolate: 'clamp',
+  });
+
+  // Play song using Spotify SDK
+  async function playSong(song: Song, index: number) {
+    try {
+      if (!SpotifyService.isAuthorized()) {
+        console.log('Not authorized, starting authorization flow...');
+        const authorized = await SpotifyService.authorize();
+        if (!authorized) {
+          console.error('Failed to authorize with Spotify');
+          alert('Could not connect to Spotify. Please make sure you are logged in to the Spotify app.');
+          return;
+        }
+      }
+
+      const sdk = SpotifyService.getSDK();
+      if (!sdk) {
+        console.error('Spotify SDK not initialized');
+        alert('Could not initialize Spotify playback. Please try again.');
+        return;
+      }
+
+      // Get playback state first
+      console.log('Getting current playback state...');
+      const state = await sdk.player.getPlaybackState();
+      console.log('Current playback state:', state);
+
+      // Check for active devices
+      console.log('Checking for available Spotify devices...');
+      const devices = await sdk.player.getAvailableDevices();
+      console.log('Available devices:', devices);
+      
+      if (devices.devices.length === 0) {
+        alert('No Spotify devices found. Please open Spotify and start playing any song first.');
+        return;
+      }
+
+      // Search for the song
+      console.log(`Searching for song: ${song.title} by ${song.artist}`);
+      const searchResult = await sdk.search(
+        `${song.title} ${song.artist}`,
+        ['track'],
+        'US',
+        1
+      );
+      console.log('Search result:', searchResult);
+
+      if (searchResult.tracks.items.length > 0) {
+        const track = searchResult.tracks.items[0];
+        console.log('Found track:', track);
+
+        try {
+          // Get current playback state to check active device
+          const playbackState = await sdk.player.getPlaybackState();
+          console.log('Current playback state:', playbackState);
+
+          // Start playback with the specific track
+          console.log('Starting playback of track:', track.uri);
+          await sdk.player.startResumePlayback(undefined, undefined, undefined, {
+            uris: [track.uri]
+          });
+          
+          setCurrentSongIndex(index);
+          setSelectedSong(song);
+
+            // Start playback with the specific track
+            console.log('Starting playback of track:', track.uri);
+            await sdk.player.startResumePlayback(undefined, undefined, undefined, {
+              uris: [track.uri]
+            });
+            
+            setCurrentSongIndex(index);
+            setSelectedSong(song);
+          } catch (playError: any) {
+            console.error('Detailed playback error:', playError?.body || playError);
+            
+            if (playError?.body?.error?.reason === 'NO_ACTIVE_DEVICE') {
+              alert('No active device found. Please open Spotify and start playing any song first.');
+            } else if (playError?.body?.error?.reason === 'PREMIUM_REQUIRED') {
+              alert('Spotify Premium is required to control playback.');
+            } else {
+              alert(`Playback failed: ${playError?.body?.error?.message || 'Unknown error'}`);
+            }
+          }
+        } else {
+          alert('No active Spotify device found. Please open Spotify and start playing any song first.');
+        }
+      } else {
+        alert(`Could not find "${song.title}" on Spotify.`);
+      }
+    } catch (error) {
+      console.error('Error playing song:', error);
+      alert('An error occurred while trying to play the song. Please try again.');
+    }
+  }
+        } else {
+          alert('No active Spotify device found. Please open Spotify and start playing any song first.');
+        }
+      } else {
+        alert(`Could not find "${song.title}" on Spotify.`);
+      }
+    } catch (error) {
+      console.error('Error playing song:', error);
+      alert('An error occurred while trying to play the song. Please try again.');
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      {/* Back Button */}
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Ionicons name="chevron-back" size={24} color="white" />
+      </TouchableOpacity>
+
+      {/* More Options Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showOptions}
+        onRequestClose={() => setShowOptions(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setShowOptions(false)}>
+          <View style={styles.modalContent}>
+            {selectedSong && (
+              <>
+                <Text style={styles.modalTitle}>{selectedSong.title}</Text>
+                <TouchableOpacity style={styles.modalOption}>
+                  <Ionicons name="heart-outline" size={24} color="white" />
+                  <Text style={styles.modalOptionText}>Add to Liked Songs</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalOption}>
+                  <Ionicons name="share-outline" size={24} color="white" />
+                  <Text style={styles.modalOptionText}>Share</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalOption}>
+                  <Ionicons name="add-outline" size={24} color="white" />
+                  <Text style={styles.modalOptionText}>Add to Playlist</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </Pressable>
+      </Modal>
+
+      <Animated.ScrollView
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
+        scrollEventThrottle={16}
+      >
+        {/* Animated Header with Image */}
+        <Animated.View
+          style={[
+            styles.header,
+            {
+              transform: [{ scale: headerScale }],
+            },
+          ]}
+        >
+          <Image
+            source={imageUri ? { uri: imageUri } : require('../assets/images/spotifyLogo.png')}
+            style={[styles.playlistImage, { width: width - 40 }]}
+            resizeMode="cover"
+          />
+          <Text style={styles.playlistName}>{name}</Text>
+          <Text style={styles.songCount}>{songs.length} songs</Text>
+        </Animated.View>
+
+        {/* Songs List */}
+        <View style={styles.songsList}>
+          {songs.map((song, index) => (
+            <TouchableOpacity
+              key={song.id}
+              style={[styles.songItem, currentSongIndex === index && styles.activeSong]}
+              onPress={() => playSong(song, index)}
+            >
+              <View style={styles.songInfo}>
+                {currentSongIndex === index ? (
+                  <FontAwesome5
+                    name="spotify"
+                    size={14}
+                    color="#1DB954"
+                    style={styles.playIcon}
+                  />
+                ) : (
+                  <Text style={styles.songNumber}>{index + 1}</Text>
+                )}
+                <View style={styles.songDetails}>
+                  <Text
+                    style={[styles.songTitle, currentSongIndex === index && styles.activeText]}
+                  >
+                    {song.title}
+                  </Text>
+                  <Text style={styles.songArtist}>{song.artist}</Text>
+                </View>
+              </View>
+              <View style={styles.songActions}>
+                <Text style={styles.songDuration}>{song.duration}</Text>
+                <TouchableOpacity
+                  style={styles.moreButton}
+                  onPress={() => {
+                    setSelectedSong(song);
+                    setShowOptions(true);
+                  }}
+                >
+                  <Ionicons name="ellipsis-horizontal" size={20} color="#b3b3b3" />
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </Animated.ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#121212',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    zIndex: 1,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: '#000000aa',
+  },
+  header: {
+    padding: 20,
+    alignItems: 'center',
+    paddingTop: 60,
+  },
+  playlistImage: {
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  playlistName: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  songCount: {
+    color: '#1DB954',
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  songsList: {
+    paddingHorizontal: 20,
+  },
+  songItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#333',
+  },
+  songInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  songNumber: {
+    color: '#b3b3b3',
+    width: 30,
+    textAlign: 'center',
+  },
+  playIcon: {
+    width: 30,
+    textAlign: 'center',
+  },
+  songDetails: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  songTitle: {
+    color: 'white',
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  songArtist: {
+    color: '#b3b3b3',
+    fontSize: 14,
+  },
+  songActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  songDuration: {
+    color: '#b3b3b3',
+    marginRight: 12,
+  },
+  moreButton: {
+    padding: 8,
+  },
+  activeSong: {
+    backgroundColor: '#282828',
+  },
+  activeText: {
+    color: '#1DB954',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#282828',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    minHeight: 300,
+  },
+  modalTitle: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#333',
+  },
+  modalOptionText: {
+    color: 'white',
+    fontSize: 16,
+    marginLeft: 15,
+  },
+});
