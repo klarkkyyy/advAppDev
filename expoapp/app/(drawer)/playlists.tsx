@@ -4,11 +4,12 @@ import React from "react";
 import {
   FlatList,
   Image,
-  ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity
+  TouchableOpacity,
+  View,
 } from "react-native";
+import BottomNav from "../../components/BottomNav";
 
 const playlists = [
   { id: "1", name: "Chill Vibes", image: require("../../assets/images/chill.jpg") },
@@ -28,75 +29,71 @@ const playlists = [
 export default function PlaylistsScreen() {
   const router = useRouter();
 
-  return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <Text style={styles.header}>🎵 All Playlists 🎵</Text>
+  const ListHeader = () => (
+    <Text style={styles.header}>🎵 All Playlists 🎵</Text>
+  );
 
-      {/* Playlists Grid */}
+  return (
+    <View style={styles.container}>
       <FlatList
+        ListHeaderComponent={ListHeader}
         data={playlists}
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: "space-between" }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
+        showsVerticalScrollIndicator={false}
+        removeClippedSubviews={true}
+        scrollEventThrottle={16}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.playlistCard}
             activeOpacity={0.7}
-            onPress={() => {
+            onPress={() =>
               router.push({
                 pathname: "/playlist-detail",
                 params: {
                   id: item.id,
                   name: item.name,
-                  imageUri: typeof item.image === "string" ? item.image : undefined
-                }
-              });
-            }}
+                },
+              })
+            }
           >
-            <Image
-              source={
-                typeof item.image === "string" ? { uri: item.image } : item.image
-              }
-              style={styles.playlistImage}
-            />
+            <Image source={item.image} style={styles.playlistImage} />
             <Text style={styles.playlistName}>{item.name}</Text>
           </TouchableOpacity>
         )}
-        contentContainerStyle={{ paddingBottom: 30 }}
       />
-    </ScrollView>
+      <BottomNav />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212", // Spotify dark theme
-    padding: 20,
+    backgroundColor: "#121212",
   },
   header: {
     color: "white",
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginVertical: 20,
     textAlign: "center",
   },
   playlistCard: {
     width: "48%",
-    marginBottom: 15,
-    opacity: 1,
-    transform: [{scale: 1}],
+    marginBottom: 16,
   },
   playlistImage: {
     width: "100%",
-    height: 120,
+    height: 150,
     borderRadius: 8,
-    marginBottom: 5,
+    marginBottom: 8,
   },
   playlistName: {
     color: "white",
-    fontWeight: "bold",
+    fontSize: 14,
     textAlign: "center",
   },
 });

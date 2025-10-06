@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -48,13 +48,13 @@ function CustomDrawerContent(props: any) {
 export default function Layout() {
   useEffect(() => {
     async function setupNavBar() {
-      try {
-        await NavigationBar.setPositionAsync("absolute");
-        await NavigationBar.setBackgroundColorAsync("#00000000");
-        await NavigationBar.setButtonStyleAsync("light");
-        await NavigationBar.setVisibilityAsync("visible");
-      } catch (e) {
-        console.log("NavigationBar error:", e);
+      if (Platform.OS === 'android') {
+        try {
+          await NavigationBar.setBackgroundColorAsync("#121212");
+          await NavigationBar.setButtonStyleAsync("light");
+        } catch (e) {
+          console.log("NavigationBar error:", e);
+        }
       }
     }
     setupNavBar();
@@ -67,10 +67,9 @@ export default function Layout() {
       <Drawer
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         defaultStatus="closed"
-        swipeEnabled
-        edgeWidth={50}
-        drawerStyle={{ backgroundColor: "#121212", width: 260 }}
         screenOptions={{
+          swipeEnabled: true,
+          drawerStyle: { backgroundColor: "#121212", width: 260 },
           headerStyle: { backgroundColor: "#121212" },
           headerTintColor: "#fff",
           headerShadowVisible: false,

@@ -2,25 +2,28 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, FlatList, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import BottomNav from "../../components/BottomNav";
 
 const playlists = [
-  { id: '1', name: 'Chill Vibes', image: require('../../assets/images/chill.jpg') },
-  { id: '2', name: 'Workout', image: require('../../assets/images/workout.jpg') },
-  { id: '3', name: 'Top Hits', image: require('../../assets/images/topHits.jpg') },
-  { id: '4', name: 'Indie', image: require('../../assets/images/indie.jpg') },
-  { id: '5', name: 'Jazz', image: require('../../assets/images/jazz.jpg') },      
-  { id: '6', name: 'Classical Essentials', image: require('../../assets/images/classical.jpg') },
-  { id: '7', name: 'Hip Hop Beats', image: require('../../assets/images/hiphop.jpg') },
-  { id: '8', name: 'Party Mix', image: require('../../assets/images/party.jpg') },
+  { id: "1", name: "Chill Vibes", image: require("../../assets/images/chill.jpg") },
+  { id: "2", name: "Workout", image: require("../../assets/images/workout.jpg") },
+  { id: "3", name: "Top Hits", image: require("../../assets/images/topHits.jpg") },
+  { id: "4", name: "Indie", image: require("../../assets/images/indie.jpg") },
+  { id: "5", name: "Jazz", image: require("../../assets/images/jazz.jpg") },
+  { id: "6", name: "Classical Essentials", image: require("../../assets/images/classical.jpg") },
+  { id: "7", name: "Hip Hop Beats", image: require("../../assets/images/hiphop.jpg") },
+  { id: "8", name: "Party Mix", image: require("../../assets/images/party.jpg") },
+  { id: "9", name: "Acoustic Mornings", image: require("../../assets/images/acoustic.jpg") },
+  { id: "10", name: "Lo-fi Study", image: require("../../assets/images/lofi.jpg") },
+  { id: "11", name: "Pop Classics", image: require("../../assets/images/pop.jpg") },
+  { id: "12", name: "Rock Legends", image: require("../../assets/images/rock.jpg") },
 ];
 
 export default function ProfileScreen() {
   const router = useRouter();
 
-  return (
-    <ScrollView style={styles.container}>
-
-      {/* Header */}
+  const ProfileHeader = () => (
+    <>
       <View style={styles.header}>
         <Image
           source={require("../../assets/images/catpfp.png")}
@@ -42,10 +45,14 @@ export default function ProfileScreen() {
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Playlists */}
       <Text style={styles.sectionTitle}>My Playlists</Text>
+    </>
+  );
+
+  return (
+    <View style={styles.container}>
       <FlatList
+        ListHeaderComponent={ProfileHeader}
         data={playlists}
         keyExtractor={(item) => item.id}
         numColumns={2}
@@ -59,9 +66,11 @@ export default function ProfileScreen() {
             <Text style={styles.playlistName}>{item.name}</Text>
           </View>
         )}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={{ paddingBottom: 80 }}
+        showsVerticalScrollIndicator={false}
       />
-    </ScrollView>
+      <BottomNav />
+    </View>
   );
 }
 

@@ -9,6 +9,7 @@ import {
   Image,
 } from "react-native";
 import { useRouter } from "expo-router";
+import BottomNav from "../../components/BottomNav";
 
 export default function SettingsScreen() {
   const [notifications, setNotifications] = useState(true);
@@ -17,7 +18,8 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>⚙️ Settings ⚙️</Text>
+      <View style={{ flex: 1, paddingBottom: 80 }}>
+        <Text style={styles.header}>⚙️ Settings ⚙️</Text>
 
       {/* Profile Image */}
       <View style={styles.profileContainer}>
@@ -60,6 +62,8 @@ export default function SettingsScreen() {
       >
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
+      </View>
+      <BottomNav />
     </View>
   );
 }
