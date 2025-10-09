@@ -58,13 +58,25 @@ export default function ProfileScreen() {
         numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
         renderItem={({ item }) => (
-          <View style={styles.playlistCard}>
+          <TouchableOpacity
+            style={styles.playlistCard}
+            activeOpacity={0.7}
+            onPress={() =>
+              router.push({
+                pathname: "/playlist-detail",
+                params: {
+                  id: item.id,
+                  name: item.name,
+                },
+              })
+            }
+          >
             <Image
               source={typeof item.image === "string" ? { uri: item.image } : item.image}
               style={styles.playlistImage}
             />
             <Text style={styles.playlistName}>{item.name}</Text>
-          </View>
+          </TouchableOpacity>
         )}
         contentContainerStyle={{ paddingBottom: 80 }}
         showsVerticalScrollIndicator={false}

@@ -1,4 +1,5 @@
-﻿// app/playlist-detail.tsx
+// app/playlist-detail.tsx - Save 1
+
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
