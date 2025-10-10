@@ -1,17 +1,20 @@
 // app/(drawer)/playlists.tsx
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
+  Alert,
   FlatList,
   Image,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
 import BottomNav from "../../components/BottomNav";
 
-const playlists = [
+const initialPlaylists = [
   { id: "1", name: "Chill Vibes", image: require("../../assets/images/chill.jpg") },
   { id: "2", name: "Workout", image: require("../../assets/images/workout.jpg") },
   { id: "3", name: "Top Hits", image: require("../../assets/images/topHits.jpg") },
@@ -28,16 +31,48 @@ const playlists = [
 
 export default function PlaylistsScreen() {
   const router = useRouter();
+  const [playlists, setPlaylists] = useState(initialPlaylists);
+  const [searchText, setSearchText] = useState('');
 
-  const ListHeader = () => (
-    <Text style={styles.header}>🎵 All Playlists 🎵</Text>
+  const filteredPlaylists = playlists.filter(playlist =>
+    playlist.name.toLowerCase().includes(searchText.toLowerCase())
   );
+
+  const createPlaylist = () => {
+    Alert.prompt(
+      'Create Playlist',
+      'Enter playlist name',
+      (text) => {
+        if (text && text.trim()) {
+          const newId = (playlists.length + 1).toString();
+          const newPlaylist = {
+            id: newId,
+            name: text.trim(),
+            image: require("../../assets/images/default.jpg"), // Default image
+          };
+          setPlaylists([...playlists, newPlaylist]);
+        }
+      }
+    );
+  };
 
   return (
     <View style={styles.container}>
+      <Text style={styles.header}>🎵 All Playlists 🎵</Text>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search playlists..."
+          placeholderTextColor="#B3B3B3"
+          value={searchText}
+          onChangeText={setSearchText}
+        />
+        <TouchableOpacity style={styles.createButton} onPress={createPlaylist}>
+          <Ionicons name="add" size={24} color="#1DB954" />
+        </TouchableOpacity>
+      </View>
       <FlatList
-        ListHeaderComponent={ListHeader}
-        data={playlists}
+        data={filteredPlaylists}
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: "space-between" }}
@@ -80,6 +115,30 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginVertical: 20,
     textAlign: "center",
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 20,
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: '#2A2A2A',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginRight: 10,
+  },
+  createButton: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   playlistCard: {
     width: "48%",

@@ -38,12 +38,15 @@ const playlists = [
 ];
 
 export default function PlaylistDetailScreen() {
-  const { id } = useLocalSearchParams();
+  const { id, name } = useLocalSearchParams();
   const router = useRouter();
   const [scrollY] = useState(() => new Animated.Value(0));
 
   const playlist = playlists.find((p) => p.id === id);
-  const songs = playlistSongs[id as keyof typeof playlistSongs] || [];
+  const isUserPlaylist = !playlist;
+  const userPlaylist = isUserPlaylist ? { id, name: name as string, description: "Your custom playlist", image: require("../assets/images/default.jpg") } : null;
+  const currentPlaylist = playlist || userPlaylist;
+  const songs = isUserPlaylist ? [] : (playlistSongs[id as keyof typeof playlistSongs] || []);
 
   // Animated header values
   const HEADER_HEIGHT = Platform.OS === 'ios' ? 280 : 260;
@@ -71,7 +74,7 @@ export default function PlaylistDetailScreen() {
     }
   };
 
-  if (!playlist) {
+  if (!currentPlaylist) {
     return (
       <View style={styles.container}>
         <Text style={styles.error}>Playlist not found</Text>
@@ -129,26 +132,37 @@ export default function PlaylistDetailScreen() {
             },
           ]}
         >
-          <Image source={playlist.image} style={styles.coverImage} />
+          <Image source={currentPlaylist.image} style={styles.coverImage} />
           <View style={styles.headerContent}>
-            <Text style={styles.title}>{playlist.name}</Text>
-            <Text style={styles.description}>{playlist.description}</Text>
+            <Text style={styles.title}>{currentPlaylist.name}</Text>
+            <Text style={styles.description}>{currentPlaylist.description}</Text>
             <Text style={styles.songCount}>{songs.length} songs</Text>
           </View>
         </Animated.View>
 
         <View style={styles.songList}>
-          {songs.map((song, index) => renderSongItem(song, index))}
+          {songs.length > 0 ? (
+            songs.map((song, index) => renderSongItem(song, index))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Pressable style={styles.addSongButton} onPress={() => alert('Add song functionality')}>
+                <Ionicons name="add" size={48} color="#1DB954" />
+                <Text style={styles.addSongText}>Add a Song</Text>
+              </Pressable>
+            </View>
+          )}
         </View>
 
         <View style={styles.content}>
-          <Pressable
-            style={[styles.playButton, Platform.OS === 'ios' && styles.playButtonIOS]}
-            onPress={openInSpotify}
-          >
-            <Ionicons name="musical-notes" size={24} color="#FFFFFF" />
-            <Text style={styles.playButtonText}>Open in Spotify</Text>
-          </Pressable>
+          {!isUserPlaylist && (
+            <Pressable
+              style={[styles.playButton, Platform.OS === 'ios' && styles.playButtonIOS]}
+              onPress={openInSpotify}
+            >
+              <Ionicons name="musical-notes" size={24} color="#FFFFFF" />
+              <Text style={styles.playButtonText}>Open in Spotify</Text>
+            </Pressable>
+          )}
         </View>
       </Animated.ScrollView>
     </View>
@@ -282,5 +296,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginTop: 20,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 100,
+  },
+  addSongButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  addSongText: {
+    color: '#1DB954',
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 10,
   },
 });
