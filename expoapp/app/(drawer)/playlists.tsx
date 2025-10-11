@@ -48,7 +48,7 @@ export default function PlaylistsScreen() {
           const newPlaylist = {
             id: newId,
             name: text.trim(),
-            image: require("../../assets/images/default.jpg"), // Default image
+            image: require("../../assets/images/default.jpg"), 
           };
           setPlaylists([...playlists, newPlaylist]);
         }
