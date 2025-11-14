@@ -24,3 +24,12 @@
 ![710fb209-d5ef-43e0-8fcc-b9f9aa232bf1](https://github.com/user-attachments/assets/b3c07204-8482-4e4f-99f1-3096f4c0ba8e)
 
 - Activity 2
+![takePhotoGallery](https://github.com/user-attachments/assets/0bb04e8d-aeb8-4fc2-8255-98584e2d111a)
+![galleryPicker](https://github.com/user-attachments/assets/ab62df9e-4ceb-4f13-b276-130ed3314b3e)
+![themeSwitch](https://github.com/user-attachments/assets/47d8e3c9-f5ab-481c-a5ad-cbc0ae2a119d)
+![changePicFromGallerySuccess](https://github.com/user-attachments/assets/58c0eced-6205-4360-b1d1-0faa30bb7d26)
+<img width="408" height="748" alt="takePhotoChangePic" src="https://github.com/user-attachments/assets/2d11f139-d079-448b-9580-5053ad9917d0" />
+![takePhotoThemeSwitch](https://github.com/user-attachments/assets/6a400f7c-f962-4559-a5ff-e799aaf78384)
+![cropFeature](https://github.com/user-attachments/assets/9b0efbbf-8992-439e-b66b-9a7d57e8ad25)
+![takePhotoChangePicSuccess](https://github.com/user-attachments/assets/e9156fe0-d358-49c8-b0bf-759488df72ca)
+
