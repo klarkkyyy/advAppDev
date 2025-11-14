@@ -2,3 +2,13 @@
 ![slidebar](https://github.com/user-attachments/assets/c736f3de-9e3b-4c42-b0b8-db311d8886d7) ![profile](https://github.com/user-attachments/assets/5b5b8316-a813-4985-9ab4-37913cae2dcc)
 ![playlists](https://github.com/user-attachments/assets/673225e6-19ec-4d22-966c-0d05869b2e33)
 ![playlist](https://github.com/user-attachments/assets/43737b2f-5a31-43f8-a32d-d5c49edd51fb) ![settings](https://github.com/user-attachments/assets/93f14e20-4017-4be9-b985-71105936c64a)
+
+![playlists2](https://github.com/user-attachments/assets/a3f5185f-943e-4b6d-8eb3-416ba6922a12)
+![createPlaylist](https://github.com/user-attachments/assets/9726461d-1428-4b7e-afb8-bb1486e8d4b6)
+![createPlaylistSuccess](https://github.com/user-attachments/assets/9a0b8e33-c292-4643-b3c0-bb00468c53cb)
+![newPlaylistDisplay](https://github.com/user-attachments/assets/a2999ec7-4b16-4de7-b0b0-edbd474522dc)
+![chossingPlaylistImage](https://github.com/user-attachments/assets/80c381a4-ef97-439e-b0dc-b9883e32c70a)
+![addingSong](https://github.com/user-attachments/assets/0a99bb1c-c51a-4b9b-819b-2e84db7958c9)
+![songSearchSuggestion](https://github.com/user-attachments/assets/135d14f1-9ab1-402d-877e-24b308e690c3)
+![songSuggestionSuccess](https://github.com/user-attachments/assets/2a9965cf-1fa1-4a7b-a85d-1bd2b7178c44)
+![newSongAdded](https://github.com/user-attachments/assets/5e3e7a02-c7b2-47d9-a651-53410e19652d)
