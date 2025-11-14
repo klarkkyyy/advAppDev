@@ -28,6 +28,7 @@ import Animated, {
 } from "react-native-reanimated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useProfile } from "../../contexts/ProfileContext";
 import { 
   setThemeMode, 
   setAccentColor,
@@ -97,6 +98,9 @@ export default function SettingsScreen() {
   const themeColors = useAppSelector(selectThemeColors);
   const themeMode = useAppSelector(selectThemeMode);
   const accentColor = useAppSelector(selectAccentColor);
+
+  // Profile context
+  const { username: displayUsername, profileImage } = useProfile();
 
   // Animation value for theme transitions
   const themeProgress = useSharedValue(themeMode === 'dark' ? 1 : 0);
@@ -339,10 +343,10 @@ export default function SettingsScreen() {
       {/* Profile Image */}
       <View style={styles.profileContainer}>
         <Image
-          source={require("../../assets/images/catpfp.png")}
+          source={profileImage ? { uri: profileImage } : require("../../assets/images/catpfp.png")}
           style={styles.profileImage}
         />
-        <Text style={[styles.profileName, { color: themeColors.text }]}>Karl Medina</Text>
+        <Text style={[styles.profileName, { color: themeColors.text }]}>{displayUsername}</Text>
       </View>
 
       {/* Create Profile Button */}

@@ -3,12 +3,14 @@ import { useRouter, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector } from '../store/hooks';
 import { selectThemeColors, selectAccentColor } from '../store/themeSlice';
+import { useProfile } from '../contexts/ProfileContext';
 
 export default function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
   const themeColors = useAppSelector(selectThemeColors);
   const accentColor = useAppSelector(selectAccentColor);
+  const { profileImage } = useProfile();
 
   return (
     <View style={[styles.bottomNav, { backgroundColor: themeColors.card, borderTopColor: themeColors.border }]}>
@@ -27,7 +29,7 @@ export default function BottomNav() {
       {/* Profile */}
       <TouchableOpacity onPress={() => router.push("/profile")} style={styles.navItem}>
         <Image
-          source={require("../assets/images/catpfp.png")}
+          source={profileImage ? { uri: profileImage } : require("../assets/images/catpfp.png")}
           style={[styles.profileImage, pathname === "/profile" && { borderWidth: 2, borderColor: accentColor }]}
         />
         <Text style={[styles.navText, { color: themeColors.text }, pathname === "/profile" && { color: accentColor }]}>

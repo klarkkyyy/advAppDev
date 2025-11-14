@@ -9,9 +9,11 @@ import { useEffect } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useProfile } from "../../contexts/ProfileContext";
 
 function CustomDrawerContent(props: any) {
   const router = useRouter();
+  const { username, profileImage } = useProfile();
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#121212" }}>
@@ -29,11 +31,11 @@ function CustomDrawerContent(props: any) {
           activeOpacity={0.7}
         >
           <Image
-            source={require("../../assets/images/catpfp.png")}
+            source={profileImage ? { uri: profileImage } : require("../../assets/images/catpfp.png")}
             style={styles.profileImage}
           />
           <View>
-            <Text style={styles.profileName}>Karl Medina</Text>
+            <Text style={styles.profileName}>{username}</Text>
             <Text style={styles.viewProfile}>View Profile</Text>
           </View>
         </TouchableOpacity>

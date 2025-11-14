@@ -76,19 +76,20 @@ export default function PlaylistsScreen() {
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
       <Text style={[styles.header, { color: themeColors.text }]}>🎵 All Playlists 🎵</Text>
-      <View style={[styles.searchContainer, { backgroundColor: themeColors.card }]}>
+      <View style={styles.searchContainer}>
         <TextInput
-          style={[styles.searchInput, { color: themeColors.text }]}
+          style={[styles.searchInput, { backgroundColor: themeColors.card, color: themeColors.text }]}
           placeholder="Search playlists..."
-          placeholderTextColor="#B3B3B3"
+          placeholderTextColor="#888"
           value={searchText}
           onChangeText={setSearchText}
         />
-        <TouchableOpacity style={styles.createButton} onPress={createPlaylist}>
+        <TouchableOpacity style={[styles.createButton, { backgroundColor: themeColors.card }]} onPress={createPlaylist}>
           <Ionicons name="add" size={24} color={accentColor} />
         </TouchableOpacity>
       </View>
       <FlatList
+        style={{ backgroundColor: themeColors.background }}
         data={filteredPlaylists}
         keyExtractor={(item) => item.id}
         numColumns={2}
@@ -99,7 +100,7 @@ export default function PlaylistsScreen() {
         scrollEventThrottle={16}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={[styles.playlistCard, { backgroundColor: themeColors.card }]}
+            style={styles.playlistCard}
             activeOpacity={0.7}
             onPress={() =>
               router.push({
@@ -127,10 +128,8 @@ export default function PlaylistsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
   },
   header: {
-    color: "white",
     fontSize: 24,
     fontWeight: "bold",
     marginVertical: 20,
@@ -144,16 +143,13 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    backgroundColor: '#2A2A2A',
     borderRadius: 25,
     paddingHorizontal: 20,
     paddingVertical: 12,
-    color: '#FFFFFF',
     fontSize: 16,
     marginRight: 10,
   },
   createButton: {
-    backgroundColor: '#1E1E1E',
     borderRadius: 25,
     width: 50,
     height: 50,
@@ -171,7 +167,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   playlistName: {
-    color: "white",
     fontSize: 14,
     textAlign: "center",
   },

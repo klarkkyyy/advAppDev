@@ -21,7 +21,7 @@ interface ThemeState {
 const lightTheme: ThemeColors = {
   primary: '#1DB954',
   background: '#FFFFFF',
-  card: '#F5F5F5',
+  card: '#FFFFFF',
   text: '#000000',
   border: '#E0E0E0',
   notification: '#FF6B6B',
@@ -30,7 +30,7 @@ const lightTheme: ThemeColors = {
 const darkTheme: ThemeColors = {
   primary: '#1DB954',
   background: '#121212',
-  card: '#1E1E1E',
+  card: '#121212',
   text: '#FFFFFF',
   border: '#2A2A2A',
   notification: '#FF6B6B',

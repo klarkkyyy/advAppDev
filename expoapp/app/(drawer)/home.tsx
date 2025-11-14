@@ -45,7 +45,7 @@ export default function Home() {
         listContainerStyle={{
           paddingHorizontal: 8,
           backgroundColor: themeColors.background,
-          paddingBottom: 70, // ✅ prevent images from being hidden under nav
+          paddingBottom: 70,
         }}
         backgroundColor={themeColors.background}
       />
