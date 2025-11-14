@@ -3,6 +3,7 @@
 ![playlists](https://github.com/user-attachments/assets/673225e6-19ec-4d22-966c-0d05869b2e33)
 ![playlist](https://github.com/user-attachments/assets/43737b2f-5a31-43f8-a32d-d5c49edd51fb) ![settings](https://github.com/user-attachments/assets/93f14e20-4017-4be9-b985-71105936c64a)
 
+=== Week 4 ===
 ![playlists2](https://github.com/user-attachments/assets/a3f5185f-943e-4b6d-8eb3-416ba6922a12)
 ![createPlaylist](https://github.com/user-attachments/assets/9726461d-1428-4b7e-afb8-bb1486e8d4b6)
 ![createPlaylistSuccess](https://github.com/user-attachments/assets/9a0b8e33-c292-4643-b3c0-bb00468c53cb)
@@ -12,3 +13,14 @@
 ![songSearchSuggestion](https://github.com/user-attachments/assets/135d14f1-9ab1-402d-877e-24b308e690c3)
 ![songSuggestionSuccess](https://github.com/user-attachments/assets/2a9965cf-1fa1-4a7b-a85d-1bd2b7178c44)
 ![newSongAdded](https://github.com/user-attachments/assets/5e3e7a02-c7b2-47d9-a651-53410e19652d)
+
+=== Week 5 ===
+- Activity 1
+![51f8eb94-078c-4283-97e2-e9ef2a0f5db2](https://github.com/user-attachments/assets/4f391a2b-8bdd-4348-8488-84d06dfbea72)
+![18d0ccc0-a2d0-49fe-9f5b-c2dd84420ff5](https://github.com/user-attachments/assets/7100ad1c-3169-4922-ade6-0268dc19b5cc)
+![5a380fd6-2e36-4641-a0cd-54da449b6074](https://github.com/user-attachments/assets/ac4d6ea9-1a0f-4fd7-beb9-655862e58c41)
+![4eac7a0b-d535-4391-8422-a544f1444047](https://github.com/user-attachments/assets/bbe0b25f-0f39-45c7-9eea-fc45cbc67189)
+![4dbcbcad-c5e4-41a0-9753-9965e5148f54](https://github.com/user-attachments/assets/25ff8be4-eb20-496a-a225-8a4e1d5bafab)
+![710fb209-d5ef-43e0-8fcc-b9f9aa232bf1](https://github.com/user-attachments/assets/b3c07204-8482-4e4f-99f1-3096f4c0ba8e)
+
+- Activity 2
