@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import BottomNav from "../../components/BottomNav";
+import { usePlaylistContext } from "../../contexts/PlaylistContext";
 
 const initialPlaylists = [
   { id: "1", name: "Chill Vibes", image: require("../../assets/images/chill.jpg") },
@@ -31,6 +32,7 @@ const initialPlaylists = [
 
 export default function PlaylistsScreen() {
   const router = useRouter();
+  const { playlistImages } = usePlaylistContext();
   const [playlists, setPlaylists] = useState(initialPlaylists);
   const [searchText, setSearchText] = useState('');
 
@@ -94,7 +96,10 @@ export default function PlaylistsScreen() {
               })
             }
           >
-            <Image source={item.image} style={styles.playlistImage} />
+            <Image 
+              source={playlistImages[item.id] || item.image} 
+              style={styles.playlistImage} 
+            />
             <Text style={styles.playlistName}>{item.name}</Text>
           </TouchableOpacity>
         )}

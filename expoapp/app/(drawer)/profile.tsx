@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, ScrollView, FlatList, TouchableOpacity }
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import BottomNav from "../../components/BottomNav";
+import { usePlaylistContext } from "../../contexts/PlaylistContext";
 
 const playlists = [
   { id: "1", name: "Chill Vibes", image: require("../../assets/images/chill.jpg") },
@@ -21,6 +22,7 @@ const playlists = [
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { playlistImages } = usePlaylistContext();
 
   const ProfileHeader = () => (
     <>
@@ -72,7 +74,7 @@ export default function ProfileScreen() {
             }
           >
             <Image
-              source={typeof item.image === "string" ? { uri: item.image } : item.image}
+              source={playlistImages[item.id] || (typeof item.image === "string" ? { uri: item.image } : item.image)}
               style={styles.playlistImage}
             />
             <Text style={styles.playlistName}>{item.name}</Text>

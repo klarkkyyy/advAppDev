@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react';
+import React, { useReducer, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,28 +7,42 @@ import {
   FlatList,
   StyleSheet,
   Alert,
-  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withSequence,
+  FadeIn,
+  FadeOut,
+} from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const STORAGE_KEY = '@playlist_state';
 
 // Action types
 type Action =
   | { type: 'ADD_SONG'; payload: string }
   | { type: 'REMOVE_SONG'; payload: number }
   | { type: 'CLEAR_PLAYLIST' }
-  | { type: 'UNDO_LAST_ACTION' };
+  | { type: 'UNDO_LAST_ACTION' }
+  | { type: 'REDO_LAST_ACTION' }
+  | { type: 'LOAD_STATE'; payload: PlaylistState };
 
 // State interface
 interface PlaylistState {
   songs: string[];
   history: string[][];
+  future: string[][];
 }
 
 // Initial state
 const initialState: PlaylistState = {
   songs: [],
   history: [],
+  future: [],
 };
 
 // Reducer function
@@ -39,6 +53,7 @@ function playlistReducer(state: PlaylistState, action: Action): PlaylistState {
         ...state,
         songs: [...state.songs, action.payload],
         history: [...state.history, [...state.songs]],
+        future: [], // Clear future when new action is taken
       };
     case 'REMOVE_SONG':
       const newSongs = state.songs.filter((_, index) => index !== action.payload);
@@ -46,12 +61,14 @@ function playlistReducer(state: PlaylistState, action: Action): PlaylistState {
         ...state,
         songs: newSongs,
         history: [...state.history, [...state.songs]],
+        future: [], // Clear future when new action is taken
       };
     case 'CLEAR_PLAYLIST':
       return {
         ...state,
         songs: [],
         history: [...state.history, [...state.songs]],
+        future: [], // Clear future when new action is taken
       };
     case 'UNDO_LAST_ACTION':
       if (state.history.length === 0) return state;
@@ -61,7 +78,20 @@ function playlistReducer(state: PlaylistState, action: Action): PlaylistState {
         ...state,
         songs: [...previousState],
         history: newHistory,
+        future: [[...state.songs], ...state.future], // Add current state to future
       };
+    case 'REDO_LAST_ACTION':
+      if (state.future.length === 0) return state;
+      const nextState = state.future[0];
+      const newFuture = state.future.slice(1);
+      return {
+        ...state,
+        songs: [...nextState],
+        history: [...state.history, [...state.songs]], // Add current state to history
+        future: newFuture,
+      };
+    case 'LOAD_STATE':
+      return action.payload;
     default:
       return state;
   }
@@ -70,8 +100,38 @@ function playlistReducer(state: PlaylistState, action: Action): PlaylistState {
 export default function CreatePlaylistScreen() {
   const [state, dispatch] = useReducer(playlistReducer, initialState);
   const [songInput, setSongInput] = useState('');
-  const [animationValue] = useState(new Animated.Value(0));
+  const scale = useSharedValue(1);
   const router = useRouter();
+
+  // Load state from AsyncStorage on mount
+  useEffect(() => {
+    loadPlaylistState();
+  }, []);
+
+  // Save state to AsyncStorage whenever it changes
+  useEffect(() => {
+    savePlaylistState();
+  }, [state]);
+
+  const loadPlaylistState = async () => {
+    try {
+      const savedState = await AsyncStorage.getItem(STORAGE_KEY);
+      if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        dispatch({ type: 'LOAD_STATE', payload: parsedState });
+      }
+    } catch (error) {
+      console.error('Failed to load playlist state:', error);
+    }
+  };
+
+  const savePlaylistState = async () => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      console.error('Failed to save playlist state:', error);
+    }
+  };
 
   const addSong = () => {
     if (songInput.trim() === '') {
@@ -82,18 +142,10 @@ export default function CreatePlaylistScreen() {
     setSongInput('');
 
     // Animate the addition
-    Animated.sequence([
-      Animated.timing(animationValue, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(animationValue, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    scale.value = withSequence(
+      withSpring(1.1, { damping: 10 }),
+      withSpring(1, { damping: 10 })
+    );
   };
 
   const removeSong = (index: number) => {
@@ -115,21 +167,21 @@ export default function CreatePlaylistScreen() {
     dispatch({ type: 'UNDO_LAST_ACTION' });
   };
 
+  const redoLastAction = () => {
+    dispatch({ type: 'REDO_LAST_ACTION' });
+  };
+
+  const animatedInputStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
   const renderSongItem = ({ item, index }: { item: string; index: number }) => (
     <Animated.View
-      style={[
-        styles.songItem,
-        {
-          transform: [
-            {
-              scale: animationValue.interpolate({
-                inputRange: [0, 1],
-                outputRange: [1, 1.05],
-              }),
-            },
-          ],
-        },
-      ]}
+      entering={FadeIn.duration(300).springify()}
+      exiting={FadeOut.duration(200)}
+      style={styles.songItem}
     >
       <View style={styles.songInfo}>
         <Text style={styles.songNumber}>{index + 1}</Text>
@@ -158,7 +210,7 @@ export default function CreatePlaylistScreen() {
       </View>
 
       {/* Input Section */}
-      <View style={styles.inputContainer}>
+      <Animated.View style={[styles.inputContainer, animatedInputStyle]}>
         <TextInput
           style={styles.textInput}
           placeholder="Enter song name..."
@@ -170,7 +222,7 @@ export default function CreatePlaylistScreen() {
         <TouchableOpacity style={styles.addButton} onPress={addSong}>
           <Ionicons name="add" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       {/* Action Buttons */}
       <View style={styles.actionButtons}>
@@ -188,8 +240,17 @@ export default function CreatePlaylistScreen() {
           onPress={undoLastAction}
           disabled={state.history.length === 0}
         >
-          <Ionicons name="undo" size={20} color="#FFFFFF" />
+          <Ionicons name="arrow-undo" size={20} color="#FFFFFF" />
           <Text style={styles.actionButtonText}>Undo</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, styles.redoButton]}
+          onPress={redoLastAction}
+          disabled={state.future.length === 0}
+        >
+          <Ionicons name="arrow-redo" size={20} color="#FFFFFF" />
+          <Text style={styles.actionButtonText}>Redo</Text>
         </TouchableOpacity>
       </View>
 
@@ -282,6 +343,9 @@ const styles = StyleSheet.create({
   },
   undoButton: {
     backgroundColor: '#4ECDC4',
+  },
+  redoButton: {
+    backgroundColor: '#9B59B6',
   },
   actionButtonText: {
     color: '#FFFFFF',
