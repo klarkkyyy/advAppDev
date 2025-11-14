@@ -1,6 +1,6 @@
 // app/(drawer)/playlists.tsx
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   FlatList,
@@ -14,6 +14,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import BottomNav from "../../components/BottomNav";
 import { usePlaylistContext } from "../../contexts/PlaylistContext";
+import { useAppSelector } from "../../store/hooks";
+import { selectThemeColors, selectAccentColor } from "../../store/themeSlice";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
 const initialPlaylists = [
   { id: "1", name: "Chill Vibes", image: require("../../assets/images/chill.jpg") },
@@ -33,8 +36,20 @@ const initialPlaylists = [
 export default function PlaylistsScreen() {
   const router = useRouter();
   const { playlistImages } = usePlaylistContext();
+  const themeColors = useAppSelector(selectThemeColors);
+  const accentColor = useAppSelector(selectAccentColor);
   const [playlists, setPlaylists] = useState(initialPlaylists);
   const [searchText, setSearchText] = useState('');
+  
+  const colorProgress = useSharedValue(0);
+
+  useEffect(() => {
+    colorProgress.value = withTiming(1, { duration: 300 });
+  }, [themeColors]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: themeColors.background,
+  }));
 
   const filteredPlaylists = playlists.filter(playlist =>
     playlist.name.toLowerCase().includes(searchText.toLowerCase())
@@ -59,18 +74,18 @@ export default function PlaylistsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>🎵 All Playlists 🎵</Text>
-      <View style={styles.searchContainer}>
+    <Animated.View style={[styles.container, animatedStyle]}>
+      <Text style={[styles.header, { color: themeColors.text }]}>🎵 All Playlists 🎵</Text>
+      <View style={[styles.searchContainer, { backgroundColor: themeColors.card }]}>
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: themeColors.text }]}
           placeholder="Search playlists..."
           placeholderTextColor="#B3B3B3"
           value={searchText}
           onChangeText={setSearchText}
         />
         <TouchableOpacity style={styles.createButton} onPress={createPlaylist}>
-          <Ionicons name="add" size={24} color="#1DB954" />
+          <Ionicons name="add" size={24} color={accentColor} />
         </TouchableOpacity>
       </View>
       <FlatList
@@ -84,7 +99,7 @@ export default function PlaylistsScreen() {
         scrollEventThrottle={16}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.playlistCard}
+            style={[styles.playlistCard, { backgroundColor: themeColors.card }]}
             activeOpacity={0.7}
             onPress={() =>
               router.push({
@@ -100,12 +115,12 @@ export default function PlaylistsScreen() {
               source={playlistImages[item.id] || item.image} 
               style={styles.playlistImage} 
             />
-            <Text style={styles.playlistName}>{item.name}</Text>
+            <Text style={[styles.playlistName, { color: themeColors.text }]}>{item.name}</Text>
           </TouchableOpacity>
         )}
       />
       <BottomNav />
-    </View>
+    </Animated.View>
   );
 }
 

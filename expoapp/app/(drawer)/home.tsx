@@ -2,7 +2,22 @@
 import { StyleSheet, View } from "react-native";
 import MasonryList from "react-native-masonry-list";
 import BottomNav from "../../components/BottomNav";
+import { useAppSelector } from "../../store/hooks";
+import { selectThemeColors } from "../../store/themeSlice";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { useEffect } from "react";
+
 export default function Home() {
+  const themeColors = useAppSelector(selectThemeColors);
+  const colorProgress = useSharedValue(0);
+
+  useEffect(() => {
+    colorProgress.value = withTiming(1, { duration: 300 });
+  }, [themeColors]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: themeColors.background,
+  }));
 
   const images = [
     { source: require("../../assets/images/catsmile.gif"), dimensions: { width: 400, height: 300 } },
@@ -17,7 +32,7 @@ export default function Home() {
   ];
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, animatedStyle]}>
       {/* Masonry grid */}
       <MasonryList
         images={images}
@@ -25,24 +40,23 @@ export default function Home() {
         spacing={6}
         imageContainerStyle={{
           borderRadius: 17,
-          backgroundColor: "#121212",
+          backgroundColor: themeColors.card,
         }}
         listContainerStyle={{
           paddingHorizontal: 8,
-          backgroundColor: "#121212",
+          backgroundColor: themeColors.background,
           paddingBottom: 70, // ✅ prevent images from being hidden under nav
         }}
-        backgroundColor="#121212"
+        backgroundColor={themeColors.background}
       />
 
       <BottomNav />
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
   },
 });

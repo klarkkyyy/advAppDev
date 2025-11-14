@@ -10,6 +10,7 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  Modal,
 } from "react-native";
 import { useRouter } from "expo-router";
 import BottomNav from "../../components/BottomNav";
@@ -23,17 +24,82 @@ import Animated, {
   FadeIn,
   FadeInDown,
   SharedValue,
+  interpolateColor,
 } from "react-native-reanimated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { 
+  setThemeMode, 
+  setAccentColor,
+  setCustomColors,
+  saveThemeToStorage,
+  selectTheme,
+  selectThemeColors,
+  selectThemeMode,
+  selectAccentColor,
+} from "../../store/themeSlice";
 
 const GENRES = ["Pop", "Rock", "Jazz", "Classical", "Hip-Hop"];
 const FORM_CACHE_KEY = "@profile_form_cache";
 
+const PRESET_COLORS = [
+  { name: "Spotify Green", color: "#1DB954" },
+  { name: "Ocean Blue", color: "#1E90FF" },
+  { name: "Sunset Orange", color: "#FF6B35" },
+  { name: "Purple Heart", color: "#9B59B6" },
+  { name: "Ruby Red", color: "#E74C3C" },
+  { name: "Mint Green", color: "#2ECC71" },
+  { name: "Golden Yellow", color: "#F39C12" },
+  { name: "Hot Pink", color: "#FF1493" },
+  { name: "Teal", color: "#00CED1" },
+  { name: "Coral", color: "#FF7F50" },
+  { name: "Lavender", color: "#B57EDC" },
+  { name: "Lime", color: "#32CD32" },
+];
+
+const THEME_PRESETS = [
+  { 
+    name: "Midnight Blue", 
+    colors: { background: "#0A1929", card: "#1A2332", text: "#FFFFFF", border: "#2A3F5F", primary: "#1DB954", notification: "#FF6B6B" }
+  },
+  { 
+    name: "Deep Purple", 
+    colors: { background: "#1A0033", card: "#2D1B4E", text: "#FFFFFF", border: "#4A3366", primary: "#1DB954", notification: "#FF6B6B" }
+  },
+  { 
+    name: "Forest Green", 
+    colors: { background: "#0D1F17", card: "#1A2F27", text: "#FFFFFF", border: "#2A4F3F", primary: "#1DB954", notification: "#FF6B6B" }
+  },
+  { 
+    name: "Charcoal", 
+    colors: { background: "#1C1C1C", card: "#2A2A2A", text: "#FFFFFF", border: "#3A3A3A", primary: "#1DB954", notification: "#FF6B6B" }
+  },
+  { 
+    name: "Navy", 
+    colors: { background: "#001F3F", card: "#003D5C", text: "#FFFFFF", border: "#005B7F", primary: "#1DB954", notification: "#FF6B6B" }
+  },
+  { 
+    name: "Burgundy", 
+    colors: { background: "#2D0A1F", card: "#4A1A36", text: "#FFFFFF", border: "#6A2A4F", primary: "#1DB954", notification: "#FF6B6B" }
+  },
+];
+
 export default function SettingsScreen() {
   const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
   const [showProfileForm, setShowProfileForm] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showThemePicker, setShowThemePicker] = useState(false);
   const router = useRouter();
+
+  // Redux theme state
+  const dispatch = useAppDispatch();
+  const theme = useAppSelector(selectTheme);
+  const themeColors = useAppSelector(selectThemeColors);
+  const themeMode = useAppSelector(selectThemeMode);
+  const accentColor = useAppSelector(selectAccentColor);
+
+  // Animation value for theme transitions
+  const themeProgress = useSharedValue(themeMode === 'dark' ? 1 : 0);
 
   // Profile form state
   const [username, setUsername] = useState("");
@@ -225,10 +291,50 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleThemeChange = (mode: 'light' | 'dark' | 'custom') => {
+    dispatch(setThemeMode(mode));
+    
+    // Animate theme transition (only for light/dark, custom keeps current appearance)
+    if (mode === 'light') {
+      themeProgress.value = withTiming(0, { duration: 300 });
+    } else if (mode === 'dark') {
+      themeProgress.value = withTiming(1, { duration: 300 });
+    }
+    // For custom mode, keep current animation state (don't animate)
+    
+    // Open theme picker when custom mode is selected
+    if (mode === 'custom') {
+      setShowThemePicker(true);
+    }
+  };
+
+  const handleCustomThemeSelect = (colors: any) => {
+    dispatch(setCustomColors(colors));
+  };
+
+  const handleAccentColorChange = (color: string) => {
+    dispatch(setAccentColor(color));
+  };
+
+  // Save theme whenever it changes
+  useEffect(() => {
+    dispatch(saveThemeToStorage(theme) as any);
+  }, [theme, dispatch]);
+
+  // Animated background style
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      themeProgress.value,
+      [0, 1],
+      ['#FFFFFF', '#121212']
+    );
+    return { backgroundColor };
+  });
+
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, animatedContainerStyle]}>
       <ScrollView style={{ flex: 1, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
-        <Text style={styles.header}>⚙️ Settings ⚙️</Text>
+        <Text style={[styles.header, { color: themeColors.text }]}>⚙️ Settings ⚙️</Text>
 
       {/* Profile Image */}
       <View style={styles.profileContainer}>
@@ -236,12 +342,12 @@ export default function SettingsScreen() {
           source={require("../../assets/images/catpfp.png")}
           style={styles.profileImage}
         />
-        <Text style={styles.profileName}>Karl Medina</Text>
+        <Text style={[styles.profileName, { color: themeColors.text }]}>Karl Medina</Text>
       </View>
 
       {/* Create Profile Button */}
       <TouchableOpacity
-        style={styles.createProfileButton}
+        style={[styles.createProfileButton, { backgroundColor: accentColor }]}
         onPress={() => setShowProfileForm(!showProfileForm)}
       >
         <Ionicons name="person-add" size={20} color="#FFFFFF" />
@@ -382,39 +488,204 @@ export default function SettingsScreen() {
 
       {/* Notifications Toggle */}
       <View style={styles.settingItem}>
-        <Text style={styles.settingText}>Notifications</Text>
+        <Text style={[styles.settingText, { color: themeColors.text }]}>Notifications</Text>
         <Switch
           value={notifications}
           onValueChange={setNotifications}
-          thumbColor={notifications ? "#1DB954" : "#888"}
-          trackColor={{ true: "#1DB954", false: "#555" }}
+          thumbColor={notifications ? accentColor : "#888"}
+          trackColor={{ true: accentColor, false: "#555" }}
         />
       </View>
 
-      {/* Dark Mode Toggle */}
-      <View style={styles.settingItem}>
-        <Text style={styles.settingText}>Dark Mode</Text>
-        <Switch
-          value={darkMode}
-          onValueChange={setDarkMode}
-          thumbColor={darkMode ? "#1DB954" : "#888"}
-          trackColor={{ true: "#1DB954", false: "#555" }}
-        />
+      {/* Theme Mode Selector */}
+      <View style={[styles.themeSection, { borderColor: themeColors.border }]}>
+        <Text style={[styles.settingText, { color: themeColors.text, marginBottom: 12 }]}>Theme</Text>
+        <View style={styles.themeModeContainer}>
+          <TouchableOpacity
+            style={[
+              styles.themeModeButton,
+              { borderColor: themeColors.border },
+              themeMode === 'light' && { backgroundColor: accentColor },
+            ]}
+            onPress={() => handleThemeChange('light')}
+          >
+            <Ionicons 
+              name="sunny" 
+              size={20} 
+              color={themeMode === 'light' ? '#FFFFFF' : themeColors.text} 
+            />
+            <Text style={[
+              styles.themeModeText,
+              { color: themeMode === 'light' ? '#FFFFFF' : themeColors.text }
+            ]}>
+              Light
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.themeModeButton,
+              { borderColor: themeColors.border },
+              themeMode === 'dark' && { backgroundColor: accentColor },
+            ]}
+            onPress={() => handleThemeChange('dark')}
+          >
+            <Ionicons 
+              name="moon" 
+              size={20} 
+              color={themeMode === 'dark' ? '#FFFFFF' : themeColors.text} 
+            />
+            <Text style={[
+              styles.themeModeText,
+              { color: themeMode === 'dark' ? '#FFFFFF' : themeColors.text }
+            ]}>
+              Dark
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.themeModeButton,
+              { borderColor: themeColors.border },
+              themeMode === 'custom' && { backgroundColor: accentColor },
+            ]}
+            onPress={() => handleThemeChange('custom')}
+          >
+            <Ionicons 
+              name="color-palette" 
+              size={20} 
+              color={themeMode === 'custom' ? '#FFFFFF' : themeColors.text} 
+            />
+            <Text style={[
+              styles.themeModeText,
+              { color: themeMode === 'custom' ? '#FFFFFF' : themeColors.text }
+            ]}>
+              Custom
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {/* Accent Color Picker */}
+      <TouchableOpacity
+        style={[styles.colorPickerButton, { borderColor: themeColors.border }]}
+        onPress={() => setShowColorPicker(true)}
+      >
+        <View style={styles.colorPickerContent}>
+          <Text style={[styles.settingText, { color: themeColors.text }]}>Accent Color</Text>
+          <View style={styles.colorPreviewContainer}>
+            <View style={[styles.colorPreview, { backgroundColor: accentColor }]} />
+            <Ionicons name="chevron-forward" size={20} color={themeColors.text} />
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      {/* Color Picker Modal */}
+      <Modal
+        visible={showColorPicker}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowColorPicker(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.colorPickerModal, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.modalTitle, { color: themeColors.text }]}>Choose Accent Color</Text>
+            
+            <ScrollView style={styles.colorGrid} showsVerticalScrollIndicator={false}>
+              <View style={styles.colorRow}>
+                {PRESET_COLORS.map((preset) => (
+                  <TouchableOpacity
+                    key={preset.color}
+                    style={[
+                      styles.colorSwatch,
+                      { backgroundColor: preset.color },
+                      accentColor === preset.color && styles.selectedSwatch,
+                    ]}
+                    onPress={() => {
+                      handleAccentColorChange(preset.color);
+                      setShowColorPicker(false);
+                    }}
+                  >
+                    {accentColor === preset.color && (
+                      <Ionicons name="checkmark" size={24} color="#FFFFFF" />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+            
+            <TouchableOpacity
+              style={[styles.modalCloseButton, { backgroundColor: accentColor }]}
+              onPress={() => setShowColorPicker(false)}
+            >
+              <Text style={styles.modalCloseText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Theme Picker Modal */}
+      <Modal
+        visible={showThemePicker}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowThemePicker(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.colorPickerModal, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.modalTitle, { color: themeColors.text }]}>Choose Custom Theme</Text>
+            
+            <ScrollView style={styles.colorGrid} showsVerticalScrollIndicator={false}>
+              {THEME_PRESETS.map((preset) => (
+                <TouchableOpacity
+                  key={preset.name}
+                  style={[
+                    styles.themePresetCard,
+                    { backgroundColor: preset.colors.background, borderColor: preset.colors.border },
+                  ]}
+                  onPress={() => {
+                    handleCustomThemeSelect(preset.colors);
+                    setShowThemePicker(false);
+                  }}
+                >
+                  <View style={styles.themePresetHeader}>
+                    <Text style={[styles.themePresetName, { color: preset.colors.text }]}>{preset.name}</Text>
+                    {themeColors.background === preset.colors.background && (
+                      <Ionicons name="checkmark-circle" size={24} color={preset.colors.primary} />
+                    )}
+                  </View>
+                  <View style={styles.themePresetColors}>
+                    <View style={[styles.themeColorDot, { backgroundColor: preset.colors.background }]} />
+                    <View style={[styles.themeColorDot, { backgroundColor: preset.colors.card }]} />
+                    <View style={[styles.themeColorDot, { backgroundColor: preset.colors.primary }]} />
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            
+            <TouchableOpacity
+              style={[styles.modalCloseButton, { backgroundColor: accentColor }]}
+              onPress={() => setShowThemePicker(false)}
+            >
+              <Text style={styles.modalCloseText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Divider */}
       <View style={styles.divider} />
 
       {/* Logout Button */}
       <TouchableOpacity
-        style={styles.logoutButton}
+        style={[styles.logoutButton, { backgroundColor: accentColor }]}
         onPress={() => router.replace("/login")}
       >
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
       </ScrollView>
       <BottomNav />
-    </View>
+    </Animated.View>
   );
 }
 
@@ -586,5 +857,137 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  themeSection: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    marginBottom: 15,
+  },
+  themeModeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  themeModeButton: {
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    borderWidth: 2,
+    gap: 6,
+  },
+  themeModeText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  colorPickerButton: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    marginBottom: 15,
+  },
+  colorPickerContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  colorPreviewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  colorPreview: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "#2A2A2A",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    padding: 20,
+  },
+  colorPickerModal: {
+    width: "100%",
+    height: 500,
+    borderRadius: 20,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  modalCloseButton: {
+    paddingVertical: 14,
+    borderRadius: 25,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  modalCloseText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  colorGrid: {
+    flex: 1,
+    marginVertical: 10,
+  },
+  colorRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 15,
+    paddingVertical: 10,
+  },
+  colorSwatch: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 3,
+    borderColor: "transparent",
+  },
+  selectedSwatch: {
+    borderColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  themePresetCard: {
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 15,
+    borderWidth: 2,
+  },
+  themePresetHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  themePresetName: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  themePresetColors: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  themeColorDot: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
   },
 });

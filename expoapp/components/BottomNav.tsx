@@ -1,21 +1,25 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppSelector } from '../store/hooks';
+import { selectThemeColors, selectAccentColor } from '../store/themeSlice';
 
 export default function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
+  const themeColors = useAppSelector(selectThemeColors);
+  const accentColor = useAppSelector(selectAccentColor);
 
   return (
-    <View style={styles.bottomNav}>
+    <View style={[styles.bottomNav, { backgroundColor: themeColors.card, borderTopColor: themeColors.border }]}>
       {/* Home */}
       <TouchableOpacity onPress={() => router.push("/home")} style={styles.navItem}>
         <Ionicons 
           name="home" 
           size={26} 
-          color={pathname === "/home" ? "#1DB954" : "white"} 
+          color={pathname === "/home" ? accentColor : themeColors.text} 
         />
-        <Text style={[styles.navText, pathname === "/home" && styles.activeNavText]}>
+        <Text style={[styles.navText, { color: themeColors.text }, pathname === "/home" && { color: accentColor }]}>
           Home
         </Text>
       </TouchableOpacity>
@@ -24,9 +28,9 @@ export default function BottomNav() {
       <TouchableOpacity onPress={() => router.push("/profile")} style={styles.navItem}>
         <Image
           source={require("../assets/images/catpfp.png")}
-          style={[styles.profileImage, pathname === "/profile" && styles.activeProfileImage]}
+          style={[styles.profileImage, pathname === "/profile" && { borderWidth: 2, borderColor: accentColor }]}
         />
-        <Text style={[styles.navText, pathname === "/profile" && styles.activeNavText]}>
+        <Text style={[styles.navText, { color: themeColors.text }, pathname === "/profile" && { color: accentColor }]}>
           Profile
         </Text>
       </TouchableOpacity>
@@ -36,9 +40,9 @@ export default function BottomNav() {
         <Ionicons 
           name="library" 
           size={26} 
-          color={pathname === "/playlists" ? "#1DB954" : "white"} 
+          color={pathname === "/playlists" ? accentColor : themeColors.text} 
         />
-        <Text style={[styles.navText, pathname === "/playlists" && styles.activeNavText]}>
+        <Text style={[styles.navText, { color: themeColors.text }, pathname === "/playlists" && { color: accentColor }]}>
           Library
         </Text>
       </TouchableOpacity>
@@ -53,8 +57,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 60,
     borderTopWidth: 1,
-    borderTopColor: "#333",
-    backgroundColor: "#181818",
     position: "absolute",
     bottom: 0,
     left: 0,
@@ -66,18 +68,10 @@ const styles = StyleSheet.create({
   navText: {
     fontSize: 11,
     marginTop: 2,
-    color: "white",
-  },
-  activeNavText: {
-    color: "#1DB954",
   },
   profileImage: {
     width: 26,
     height: 26,
     borderRadius: 13,
-  },
-  activeProfileImage: {
-    borderWidth: 2,
-    borderColor: "#1DB954",
   },
 });

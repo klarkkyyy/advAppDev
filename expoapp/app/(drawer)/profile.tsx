@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, FlatList, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import BottomNav from "../../components/BottomNav";
 import { usePlaylistContext } from "../../contexts/PlaylistContext";
+import { useAppSelector } from "../../store/hooks";
+import { selectThemeColors, selectAccentColor } from "../../store/themeSlice";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
 const playlists = [
   { id: "1", name: "Chill Vibes", image: require("../../assets/images/chill.jpg") },
@@ -23,6 +26,18 @@ const playlists = [
 export default function ProfileScreen() {
   const router = useRouter();
   const { playlistImages } = usePlaylistContext();
+  const themeColors = useAppSelector(selectThemeColors);
+  const accentColor = useAppSelector(selectAccentColor);
+
+  const colorProgress = useSharedValue(0);
+
+  useEffect(() => {
+    colorProgress.value = withTiming(1, { duration: 300 });
+  }, [themeColors]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: themeColors.background,
+  }));
 
   const ProfileHeader = () => (
     <>
@@ -32,27 +47,27 @@ export default function ProfileScreen() {
           style={styles.profileImage}
         />
         
-        <Text style={styles.username}>Karl Medina</Text>
+        <Text style={[styles.username, { color: themeColors.text }]}>Karl Medina</Text>
         <View style={styles.stats}>
           <View style={styles.stat}>
-            <Text style={styles.statNumber}>120</Text>
+            <Text style={[styles.statNumber, { color: themeColors.text }]}>120</Text>
             <Text style={styles.statLabel}>Followers</Text>
           </View>
           <View style={styles.stat}>
-            <Text style={styles.statNumber}>80</Text>
+            <Text style={[styles.statNumber, { color: themeColors.text }]}>80</Text>
             <Text style={styles.statLabel}>Following</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.editButton}>
-          <Text style={styles.editButtonText}>Edit Profile</Text>
+        <TouchableOpacity style={[styles.editButton, { borderColor: accentColor }]}>
+          <Text style={[styles.editButtonText, { color: accentColor }]}>Edit Profile</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.sectionTitle}>My Playlists</Text>
+      <Text style={[styles.sectionTitle, { color: themeColors.text }]}>My Playlists</Text>
     </>
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, animatedStyle]}>
       <FlatList
         ListHeaderComponent={ProfileHeader}
         data={playlists}
@@ -61,7 +76,7 @@ export default function ProfileScreen() {
         columnWrapperStyle={{ justifyContent: 'space-between' }}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.playlistCard}
+            style={[styles.playlistCard, { backgroundColor: themeColors.card }]}
             activeOpacity={0.7}
             onPress={() =>
               router.push({
@@ -77,21 +92,20 @@ export default function ProfileScreen() {
               source={playlistImages[item.id] || (typeof item.image === "string" ? { uri: item.image } : item.image)}
               style={styles.playlistImage}
             />
-            <Text style={styles.playlistName}>{item.name}</Text>
+            <Text style={[styles.playlistName, { color: themeColors.text }]}>{item.name}</Text>
           </TouchableOpacity>
         )}
         contentContainerStyle={{ paddingBottom: 80 }}
         showsVerticalScrollIndicator={false}
       />
       <BottomNav />
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212', // Spotify dark background
     padding: 20,
   },
   backButton: {
@@ -108,7 +122,6 @@ const styles = StyleSheet.create({
     marginBottom: 1,
   },
   username: {
-    color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -122,7 +135,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
   },
   statNumber: {
-    color: 'white',
     fontWeight: 'bold',
   },
   statLabel: {
@@ -130,18 +142,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   editButton: {
-    borderColor: 'white',
     borderWidth: 1,
     borderRadius: 20,
     paddingHorizontal: 20,
     paddingVertical: 8,
   },
   editButtonText: {
-    color: 'white',
     fontWeight: 'bold',
   },
   sectionTitle: {
-    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
@@ -157,7 +166,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   playlistName: {
-    color: 'white',
     fontWeight: 'bold',
   },
 });
