@@ -148,6 +148,11 @@ const playlists = [
   { id: "5", name: "Jazz", description: "Classic and modern jazz", image: require("../assets/images/jazz.jpg") },
   { id: "6", name: "Classical Essentials", description: "Timeless classical pieces", image: require("../assets/images/classical.jpg") },
   { id: "7", name: "Hip Hop Beats", description: "Latest hip hop tracks", image: require("../assets/images/hiphop.jpg") },
+  { id: "8", name: "Party Mix", description: "Party anthems and dance hits", image: require("../assets/images/party.jpg") },
+  { id: "9", name: "Acoustic Mornings", description: "Peaceful acoustic melodies", image: require("../assets/images/acoustic.jpg") },
+  { id: "10", name: "Lo-fi Study", description: "Focus music for studying", image: require("../assets/images/lofi.jpg") },
+  { id: "11", name: "Pop Classics", description: "Timeless pop hits", image: require("../assets/images/pop.jpg") },
+  { id: "12", name: "Rock Legends", description: "Classic rock anthems", image: require("../assets/images/rock.jpg") },
 ];
 
 export default function PlaylistDetailScreen() {
@@ -168,11 +173,24 @@ export default function PlaylistDetailScreen() {
 
   const playlist = playlists.find((p) => p.id === id);
   const isCustomPlaylist = !playlist && name;
+  
+  // For custom playlists, try to find matching image from library playlists
+  const getCustomPlaylistImage = () => {
+    // Check if there's a saved custom image first
+    if (playlistImages[id as string]) {
+      return playlistImages[id as string];
+    }
+    
+    // For user-added playlists (not in predefined list), use default image
+    // This matches what's shown in the library
+    return require("../assets/images/default.jpg");
+  };
+  
   const customPlaylist = isCustomPlaylist ? {
     id: id as string,
     name: name as string,
     description: "Custom Playlist",
-    image: availableImages[0].source // Default to first image
+    image: getCustomPlaylistImage()
   } : null;
   const currentPlaylist = playlist || customPlaylist;
   
@@ -246,11 +264,22 @@ export default function PlaylistDetailScreen() {
   const openSongInSpotify = async (song: Song) => {
     try {
       if (song.spotifyId) {
-        // Open specific Spotify track
-        const spotifyUrl = Platform.OS === 'ios'
-          ? `https://open.spotify.com/track/${song.spotifyId}`
-          : `spotify:track:${song.spotifyId}`;
-        await WebBrowser.openBrowserAsync(spotifyUrl);
+        // Try to open directly in Spotify app first
+        const spotifyAppUrl = `spotify:track:${song.spotifyId}`;
+        const spotifyWebUrl = `https://open.spotify.com/track/${song.spotifyId}`;
+        
+        // For iOS, try app URL scheme first, fallback to web
+        if (Platform.OS === 'ios') {
+          try {
+            await WebBrowser.openBrowserAsync(spotifyAppUrl);
+          } catch {
+            // If app not installed, open in web
+            await WebBrowser.openBrowserAsync(spotifyWebUrl);
+          }
+        } else {
+          // For Android, use intent to open in app or fallback to web
+          await WebBrowser.openBrowserAsync(spotifyAppUrl);
+        }
       } else {
         // Search for the song on Spotify if no ID
         const searchQuery = encodeURIComponent(`${song.title} ${song.artist}`);
@@ -258,7 +287,46 @@ export default function PlaylistDetailScreen() {
         await WebBrowser.openBrowserAsync(spotifyUrl);
       }
     } catch (error) {
-      alert('Could not open Spotify. Please make sure you have Spotify installed.');
+      console.error('Error opening Spotify:', error);
+      Alert.alert(
+        'Spotify Not Available',
+        'Please make sure you have Spotify installed, or try opening the song manually.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const playAllSongsInSpotify = async () => {
+    try {
+      // Get all Spotify IDs from songs
+      const spotifyIds = songs
+        .filter(song => song.spotifyId)
+        .map(song => song.spotifyId)
+        .join(',');
+
+      if (spotifyIds) {
+        // Create a Spotify URI to play multiple tracks
+        const spotifyPlayUrl = `spotify:track:${songs.find(s => s.spotifyId)?.spotifyId}`;
+        await WebBrowser.openBrowserAsync(spotifyPlayUrl);
+        
+        Alert.alert(
+          'Playing in Spotify',
+          'Opening first song in Spotify. You can queue the rest from there!',
+          [{ text: 'OK' }]
+        );
+      } else if (playlist) {
+        // Fallback to opening the preset playlist
+        await openInSpotify();
+      } else {
+        Alert.alert(
+          'No Spotify Links',
+          'Add songs with Spotify links to play them directly.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error playing playlist:', error);
+      Alert.alert('Error', 'Could not open Spotify. Please make sure it is installed.');
     }
   };
 
@@ -579,7 +647,17 @@ export default function PlaylistDetailScreen() {
               onPress={openInSpotify}
             >
               <Ionicons name="musical-notes" size={24} color="#FFFFFF" />
-              <Text style={styles.playButtonText}>Open in Spotify</Text>
+              <Text style={styles.playButtonText}>Open Playlist in Spotify</Text>
+            </Pressable>
+          )}
+          
+          {songs.length > 0 && songs.some(s => s.spotifyId) && (
+            <Pressable
+              style={[styles.playButton, styles.playAllButton, Platform.OS === 'ios' && styles.playButtonIOS]}
+              onPress={playAllSongsInSpotify}
+            >
+              <Ionicons name="play" size={24} color="#FFFFFF" />
+              <Text style={styles.playButtonText}>Play Songs in Spotify</Text>
             </Pressable>
           )}
         </View>
@@ -883,6 +961,10 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignSelf: 'center',
     marginBottom: 24,
+  },
+  playAllButton: {
+    backgroundColor: '#1DB954',
+    marginBottom: 12,
   },
   playButtonIOS: {
     shadowColor: '#000',
