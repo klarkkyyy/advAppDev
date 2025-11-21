@@ -110,6 +110,15 @@ export default function Layout() {
           }}
         />
         <Drawer.Screen
+          name="map-dashboard"
+          options={{
+            drawerLabel: " Map",
+            drawerIcon: ({ color, size }) => (
+              <Ionicons name="location-outline" size={size} color={color} />
+            ),
+          }}
+        />
+        <Drawer.Screen
           name="settings"
           options={{
             drawerLabel: "Settings",
