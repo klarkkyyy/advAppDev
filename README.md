@@ -33,3 +33,13 @@
 ![cropFeature](https://github.com/user-attachments/assets/9b0efbbf-8992-439e-b66b-9a7d57e8ad25)
 ![takePhotoChangePicSuccess](https://github.com/user-attachments/assets/e9156fe0-d358-49c8-b0bf-759488df72ca)
 
+== Week 6 ==
+![cc769013-0488-48dd-a57f-1a88d27fb939](https://github.com/user-attachments/assets/abd05567-cb00-43d5-af6e-9e3fc5993906)
+![7acf3b39-c36d-4694-8767-8ecb7156aa61](https://github.com/user-attachments/assets/63bb5646-b6e8-4acd-98e3-ac0acf1c4ec6)
+![d3e68a70-45be-4a50-930f-1c530e9df919](https://github.com/user-attachments/assets/ead779e2-bba8-4adc-8ec4-fb4fe70d2367)
+![d3ab7261-ad91-404a-aad4-c053abe29309](https://github.com/user-attachments/assets/b7e1f6d3-1489-4cbd-9a24-c18b3b2b0278)
+![0ec79d29-e301-49b3-a765-6b474326b5cd](https://github.com/user-attachments/assets/a0d415b8-f151-484e-b859-5fea6e25b3db)
+![873b61fb-b905-470b-a008-d8c900419435](https://github.com/user-attachments/assets/f23bcdb4-1046-43ca-b2ee-1f5d98fd3164)
+![e81ac811-18dc-432a-a2af-eb88ba3b843f](https://github.com/user-attachments/assets/fd542b6d-3e48-43c7-bbcf-74df0a76b455)
+![777058a6-7184-4eb0-b74a-df75f3579a9a](https://github.com/user-attachments/assets/85dee2cd-475a-4ae0-8ff2-1079a0c67c7f)
+
